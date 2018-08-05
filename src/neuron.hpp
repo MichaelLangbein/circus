@@ -1,4 +1,3 @@
-#include <math.h>  
 
 class Neuron {
   private:
