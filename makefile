@@ -14,7 +14,6 @@ COMPILE=g++ -c $(DEBUGINFO) $(WARNINGS) $(INCLUDES)
 LINK=g++  $(DEBUGINFO) $(LIBS)
 
 
-
 neuron.o:
 	$(COMPILE) src/neuron.cpp -o build/neuron.o
 
@@ -28,6 +27,11 @@ main: main.o neuron.o
 
 run:
 	./build/main
+
+buildTest: neuron.o
+	$(COMPILE) test/neuronTest.cpp -o build/neuronTest.o
+	$(LINK) build/neuron.o build/neuronTest.o -o build/neuronTest
+	./build/neuronTest 
 
 clean:
 	rm build/*.o
