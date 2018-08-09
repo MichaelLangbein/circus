@@ -3,8 +3,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE( neuron_test ) {
-    Neuron n();
-    float result = n.evaluate(1.1);
-    printf("result: %f \n", result);
-    BOOST_CHECK_EQUAL(2+2, 4);
+    Neuron n;
+    float result = n.evaluate(1);
+    BOOST_CHECK(result - 0.731058598 < 0.001);
 }
