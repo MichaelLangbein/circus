@@ -25,9 +25,7 @@ void NN::evaluate(double* input, double* output) {
     double currentOut[bs];     // <-- pre-allocated, to be filled later
 
     // putting input into currentInput
-    for(int i < 0; i < bs; i++) {
-        currentIn[i] = input[i];
-    }
+    for(int i = 0; i < bs; i++) currentIn[i] = input[i];
 
     for(unsigned l = 0; l < layers.size(); l++) {
         Layer& layer = layers[l];
@@ -44,9 +42,7 @@ void NN::evaluate(double* input, double* output) {
     }
 
     // putting results in the preallocated output array
-    for(int i = 0; i < oc; i++) {
-        output[i] = currentOut[i];
-    }
+    for(int i = 0; i < bs; i++) output[i] = currentOut[i];
 };
 
 

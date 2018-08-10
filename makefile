@@ -23,8 +23,8 @@ COMPILE=g++ -c $(STANDARD) $(DEBUGINFO) $(WARNINGS) $(INCLUDES)
 LINK=g++ $(STANDARD) $(DEBUGINFO) $(LIBS)
 
 
-build/neuron.o: src/neuron.cpp
-	$(COMPILE) src/neuron.cpp -o build/neuron.o
+build/matrix.o: src/matrix.cpp
+	$(COMPILE) src/matrix.cpp -o build/matrix.o
 
 build/connection.o: src/connection.cpp
 	$(COMPILE) src/connection.cpp -o build/connection.o
@@ -38,7 +38,7 @@ build/nn.o: src/nn.cpp
 build/main.o: src/main.cpp
 	$(COMPILE) src/main.cpp -o build/main.o
 
-build/main: build/main.o build/nn.o build/layer.o build/connection.o
+build/main: build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o
 	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o -o build/main 
 
 run:
