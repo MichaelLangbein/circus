@@ -14,21 +14,32 @@ LIBS = -L./build/
 WARNINGS = -Wall -Wextra
 # Chose -g to enable debugging, chose nothing otherwise
 DEBUGINFO = -g 
+# What standard should be compiled?
+STANDARD = -std=c++11
 # -c : compile ( nur compile, nicht link !)
 # -o : outputfile-name: name der fertigen binary
 # -g : fuer debugger
-COMPILE=g++ -c $(DEBUGINFO) $(WARNINGS) $(INCLUDES)
-LINK=g++ $(DEBUGINFO) $(LIBS)
+COMPILE=g++ -c $(STANDARD) $(DEBUGINFO) $(WARNINGS) $(INCLUDES)
+LINK=g++ $(STANDARD) $(DEBUGINFO) $(LIBS)
 
 
 build/neuron.o: src/neuron.cpp
 	$(COMPILE) src/neuron.cpp -o build/neuron.o
 
+build/connection.o: src/connection.cpp
+	$(COMPILE) src/connection.cpp -o build/connection.o
+
+build/layer.o: src/layer.cpp
+	$(COMPILE) src/layer.cpp -o build/layer.o
+
+build/nn.o: src/nn.cpp 
+	$(COMPILE) src/nn.cpp -o build/nn.o
+
 build/main.o: src/main.cpp
 	$(COMPILE) src/main.cpp -o build/main.o
 
-build/main: build/main.o build/neuron.o
-	$(LINK) build/main.o build/neuron.o -o build/main 
+build/main: build/main.o build/nn.o build/layer.o build/connection.o
+	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o -o build/main 
 
 run:
 	./build/main
