@@ -19,18 +19,24 @@ NN::NN(std::vector<int> layerSizes) {
 
 void NN::evaluate(double* input, double* output) {
 
-    double* currentIn = input;
-    double* currentBetween;
-    double* currentOut;
+    double* currentIn = input; // <-- currentIn points to input
+    double currentBetween[30]; // <-- pre-allocated, to be filled later
+    double currentOut[30];     // <-- pre-allocated, to be filled later
 
     for(unsigned l = 0; l < layers.size(); l++) {
         Layer& layer = layers[l];
         Connection& conn = connections[l];
+        
         conn.propagate(currentIn, currentBetween);
         layer.evaluate(currentBetween, currentOut);    
+        
+        currentIn = currentOut; // <--currentIn points to last output
     }
 
-    output = currentOut;
+    // putting results in the preallocated output array
+    for(int i = 0; i < oc; i++) {
+        output[i] = currentOut[i];
+    }
 };
 
 
