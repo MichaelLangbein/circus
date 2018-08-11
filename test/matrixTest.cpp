@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( vector_test ) {
     }
 
     double innerPrd = v * u;
-    printf("Inner prod: %d \n", innerPrd);
+    printf("Inner prod: %f \n", innerPrd);
 
     Vector sumV = v + u;
     printVector(sumV);

@@ -42,8 +42,8 @@ build/nn.o: src/nn/nn.cpp
 build/main.o: src/main.cpp
 	$(COMPILE) src/main.cpp -o build/main.o
 
-build/main: build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o
-	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o -o build/main 
+build/main: build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o build/vector.o
+	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o build/vector.o -o build/main 
 
 run:
 	./build/main
@@ -59,7 +59,7 @@ all: build/main run
 build/matrixTest.o: test/matrixTest.cpp
 	$(COMPILE) test/matrixTest.cpp -o build/matrixTest.o
 
-test: build/matrix.o build/matrixTest.o
-	$(LINK) build/matrix.o build/matrixTest.o -o build/matrixTest
+test: build/matrix.o build/vector.o build/matrixTest.o
+	$(LINK) build/matrix.o build/vector.o build/matrixTest.o -o build/matrixTest
 	./build/matrixTest 
-	valgrind --leak-check=yes build/matrixTest
+	
