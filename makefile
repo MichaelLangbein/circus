@@ -59,7 +59,15 @@ all: build/main run
 build/matrixTest.o: test/matrixTest.cpp
 	$(COMPILE) test/matrixTest.cpp -o build/matrixTest.o
 
-test: build/matrix.o build/vector.o build/matrixTest.o
+build/testMatrix: build/matrix.o build/vector.o build/matrixTest.o
 	$(LINK) build/matrix.o build/vector.o build/matrixTest.o -o build/matrixTest
 	./build/matrixTest 
 	
+build/nnTest.o: test/nnTest.cpp
+	$(COMPILE) test/nnTest.cpp -o build/nnTest.o
+
+build/testNN: build/connection.o build/layer.o build/nn.o build/nnTest.o
+	$(LINK) build/connection.o build/layer.o build/nn.o build/nnTest.o -o build/testNN
+	./build/testNN
+
+test: build/testMatrix build/testNN

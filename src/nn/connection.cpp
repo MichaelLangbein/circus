@@ -5,7 +5,9 @@
 Connection::Connection(int out, int in) : inCount(in), outCount(out), weightMatrix(in, out) {
 }
 
-void Connection::propagate(double* dataIn, double* dataOut) {
-    weightMatrix.mult(dataIn, dataOut);
+Vector& Connection::propagate(Vector& dataIn) {
+    if (dataIn.getSize() != inCount) throw "Wrong input size!";
+    Vector result = weightMatrix * dataIn;
+    return result;
 }
 

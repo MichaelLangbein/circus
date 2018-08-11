@@ -10,6 +10,6 @@ class Connection {
     public:
         Connection(int out, int in);
 
-        void propagate(double* dataIn, double* dataOut);
+        Vector& propagate(Vector& dataIn);
 
 };
