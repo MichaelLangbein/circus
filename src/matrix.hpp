@@ -6,7 +6,10 @@ class Matrix {
         double** vals;
 
     public:
-        Matrix(int rows, int cols);
+        Matrix (int rows, int cols);
+        Matrix (const Matrix& source);
+        Matrix& operator= (const Matrix& source);
         ~Matrix();
-        void leftMult(double* dataIn, double* dataOut);
+        void mult(double* dataIn, double* dataOut);
+        double get(int r, int c) const;
 };

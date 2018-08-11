@@ -6,6 +6,6 @@ Connection::Connection(int out, int in) : inCount(in), outCount(out), weightMatr
 }
 
 void Connection::propagate(double* dataIn, double* dataOut) {
-    weightMatrix.leftMult(dataIn, dataOut);
+    weightMatrix.mult(dataIn, dataOut);
 }
 
