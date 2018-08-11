@@ -5,6 +5,9 @@
 
 Vector::Vector(int size) : size(size) {
     vals = (double*) malloc(sizeof(double) * size);
+    for(int i = 0; i<size; i++) {
+        vals[i] = 0.0;
+    }
 }
 
 
@@ -64,6 +67,11 @@ Vector Vector::operator*(double scalar) {
         newVec.set(i, newVal);
     }
     return newVec;
+}
+
+double& Vector::operator[] (int pos) {
+    if(pos >= getSize()) throw "index out of bounds!";
+    return vals[pos];
 }
 
 

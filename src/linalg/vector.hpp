@@ -10,6 +10,7 @@ class Vector {
         Vector operator+(const Vector& other);
         double operator*(const Vector& other);
         Vector operator*(double scalar);
+        double& operator[] (int pos);
         ~Vector();
         int getSize() const;
         void set(int pos, double val);

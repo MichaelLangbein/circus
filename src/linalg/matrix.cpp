@@ -77,7 +77,11 @@ Matrix Matrix::operator* (const Matrix& other) {
 
     for(int r = 0; r < newMatrix.getRows(); r++) {
         for (int c = 0; c < newMatrix.getCols(); c++) {
-            // TODO
+            double prod = 0.0;
+            for(int c1 = 0; c1 < getCols(); c1++) {
+                prod += get(r, c1) * other.get(c1, c);
+            }
+            newMatrix.set(r, c, prod);
         }
     }
 
@@ -100,6 +104,9 @@ Vector Matrix::operator* (const Vector& vec) {
 
     return newVec;
 }
+
+
+
 
 Matrix::~Matrix() {
     for(int r = 0; r < getRows(); r++) {
