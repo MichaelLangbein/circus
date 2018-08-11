@@ -39,10 +39,18 @@ build/main.o: src/main.cpp
 	$(COMPILE) src/main.cpp -o build/main.o
 
 build/main: build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o
-	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o -o build/main 
+	$(LINK) build/main.o build/nn.o build/layer.o build/connection.o build/matrix.o -o build/main 
 
 run:
 	./build/main
+
+analyse: build/main
+	valgrind --leak-check=yes build/main
+
+clean:
+	rm build/*.o
+
+all: build/main run
 
 build/neuronTest.o: test/neuronTest.cpp
 	$(COMPILE) test/neuronTest.cpp -o build/neuronTest.o
@@ -50,8 +58,3 @@ build/neuronTest.o: test/neuronTest.cpp
 test: build/neuron.o build/neuronTest.o
 	$(LINK) build/neuron.o build/neuronTest.o -o build/neuronTest
 	./build/neuronTest 
-
-clean:
-	rm build/*.o
-
-all: build/main run
