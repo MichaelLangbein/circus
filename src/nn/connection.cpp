@@ -2,12 +2,19 @@
 
 
 
-Connection::Connection(int out, int in) : inCount(in), outCount(out), weightMatrix(in, out) {
+Connection::Connection(int out, int in) : weightMatrix(out, in) {
 }
 
-Vector& Connection::propagate(Vector& dataIn) {
-    if (dataIn.getSize() != inCount) throw "Wrong input size!";
-    Vector result = weightMatrix * dataIn;
-    return result;
+Vector Connection::propagate(Vector& dataIn) {
+    if (dataIn.getSize() != getInSize()) throw "Wrong input size!";
+    Vector dataOut = weightMatrix * dataIn;
+    return dataOut;
 }
 
+int Connection::getInSize() {
+    return weightMatrix.getCols();
+}
+
+int Connection::getOutSize() {
+    return weightMatrix.getRows();
+}

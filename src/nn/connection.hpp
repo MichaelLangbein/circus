@@ -3,13 +3,12 @@
 
 class Connection {
     private:
-        int inCount;
-        int outCount;
         Matrix weightMatrix;    
 
     public:
         Connection(int out, int in);
-
-        Vector& propagate(Vector& dataIn);
+        int getInSize();
+        int  getOutSize();
+        Vector propagate(Vector& dataIn);
 
 };

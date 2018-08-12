@@ -66,8 +66,8 @@ build/testMatrix: build/matrix.o build/vector.o build/matrixTest.o
 build/nnTest.o: test/nnTest.cpp
 	$(COMPILE) test/nnTest.cpp -o build/nnTest.o
 
-build/testNN: build/connection.o build/layer.o build/nn.o build/nnTest.o
-	$(LINK) build/connection.o build/layer.o build/nn.o build/nnTest.o -o build/testNN
+build/testNN: build/connection.o build/matrix.o build/vector.o build/nnTest.o
+	$(LINK) build/connection.o build/matrix.o build/vector.o build/nnTest.o -o build/testNN
 	./build/testNN
 
 test: build/testMatrix build/testNN
