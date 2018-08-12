@@ -1,4 +1,5 @@
 #include "nn.hpp"
+#include <iostream>
 #include <stdio.h>
 
 
@@ -8,7 +9,7 @@ NN::NN(std::vector<int> layerSizes) {
         int lastSize = layerSizes[l-1];
         int currSize = layerSizes[l];        
 
-        Connection conn(currSize, lastSize);
+        Connection conn(lastSize, currSize);
         connections.push_back(conn);        
         
         Layer layer(currSize);
@@ -17,34 +18,22 @@ NN::NN(std::vector<int> layerSizes) {
 }
 
 
-void NN::evaluate(double* input, double* output) {
+Vector NN::evaluate(const Vector& input) {
 
-    const int bs = 30; // buffer size. Must be as big as the biggest layer. 
-    double currentIn[bs];      // <-- pre-allocated, to be filled later
-    double currentBetween[bs]; // <-- pre-allocated, to be filled later
-    double currentOut[bs];     // <-- pre-allocated, to be filled later
-
-    // putting input into currentInput
-    for(int i = 0; i < bs; i++) currentIn[i] = input[i];
+    Vector currentInput(input);
+    Vector currentBetween(input);
+    Vector currentOutput(input);
 
     for(unsigned l = 0; l < layers.size(); l++) {
+
         Layer& layer = layers[l];
         Connection& conn = connections[l];
         
-        conn.propagate(currentIn, currentBetween);
-        layer.evaluate(currentBetween, currentOut);
-
-        // copying out to in, so that operations on out wont affect in. TODO: maybe i should do a pointerswap here?
-        for(int i = 0; i < bs; i++) {
-            currentIn[i] = currentOut[i];
-            currentOut[i] = 0.0;
-        }
+        currentBetween = conn.propagate(currentInput);
+        currentOutput = layer.evaluate(currentBetween);
+        
+        currentInput = currentOutput;
     }
 
-    // putting results in the preallocated output array
-    for(int i = 0; i < bs; i++) output[i] = currentOut[i];
+    return currentOutput;
 };
-
-
-void NN::backprop(std::vector< std::vector<double> > inputs, std::vector< std::vector<double> > outputs) {
-}

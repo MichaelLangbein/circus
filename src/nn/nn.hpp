@@ -1,3 +1,8 @@
+#ifndef nn_h
+#define nn_h
+
+
+
 #include <vector>
 #include "layer.hpp"
 #include "connection.hpp"
@@ -10,6 +15,8 @@ class NN {
 
     public:
         NN(std::vector<int> layerSizes);
-        void evaluate(double* input, double* output);
-        void backprop(std::vector< std::vector<double> > inputs, std::vector< std::vector<double> > outputs);
+        Vector evaluate(const Vector& input);
 };
+
+
+#endif

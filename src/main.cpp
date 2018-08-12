@@ -10,9 +10,12 @@ int main() {
     std::vector<int> layerSizes = {3, 4, 3};
     NN nn(layerSizes);
     
-    double input[3] = {1.1, 4.1, 2.4};
-    double output[3] = {1, 1, 1};
-    nn.evaluate(input, output);
+    Vector input(3);
+    input[0] = 1;
+    input[1] = 2;
+    input[2] = 3;
+
+    Vector output = nn.evaluate(input);
 
     for(int i = 0; i < 3; i++){
         printf("%f \n", output[i]);

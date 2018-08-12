@@ -1,3 +1,7 @@
+#ifndef matrix_h
+#define matrix_h
+
+
 #include "vector.hpp"
 
 class Matrix {
@@ -19,3 +23,6 @@ class Matrix {
         double get(int r, int c) const;
         void set(int r, int c, double val);
 };
+
+
+#endif

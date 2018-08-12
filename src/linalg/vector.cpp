@@ -95,3 +95,5 @@ double Vector::get(int pos) const {
     if(pos >= getSize()) throw "This vector is not that long!";
     return vals[pos];
 };
+
+

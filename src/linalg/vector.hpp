@@ -1,3 +1,8 @@
+#ifndef vector_h
+#define vector_h
+
+
+
 class Vector {
     private: 
         int size;
@@ -16,3 +21,6 @@ class Vector {
         void set(int pos, double val);
         double get(int pos) const;
 };
+
+
+#endif
