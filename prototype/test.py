@@ -6,7 +6,11 @@ class Layer:
         self.count = count
 
     def predict(self, inpt):
-        return 1. / (1. + np.exp(-inpt))        
+        return 1. / (1. + np.exp(-inpt))
+
+    def d_activ_dw(self, inpt):
+        return np.exp(-inpt) / (1. + np.exp(-inpt))**2 
+
 
 class Connection:
     def __init__(self, r, c):
@@ -15,10 +19,13 @@ class Connection:
     def propagate(self, inpt):
         return self.conn.dot(inpt)
 
+
 class NN:
     def __init__(self, sizes):
-        self.layers = []
         self.conns = []
+        self.phis = []
+        self.layers = []
+        self.acts = []
         for l in range(1, len(sizes)):
             lastSize = sizes[l-1]
             currSize = sizes[l]
@@ -29,13 +36,27 @@ class NN:
         for l in range(len(self.layers)):
             conn = self.conns[l]
             layer = self.layers[l]
-            prp = conn.propagate(inpt)
-            outpt = layer.predict(prp)
-            inpt = outpt
-        return outpt
+            phi = conn.propagate(inpt)
+            act = layer.predict(phi)
+            inpt = act
+        return act
 
-    def optimize(self, testData):
-        pass
+    def backprop(self, inpt, outpt):
+
+        # Forward pass
+        for l in range(len(self.layers)):
+            conn = self.conns[l]
+            layer = self.layers[l]
+            self.phis[l] = conn.propagate(inpt)
+            self.acts[l] = layer.predict(self.phis[l])
+            inpt = self.acts[l]
+
+        # Backward pass
+        for l in range(len(self.layers), 1):
+            dadp = self.layers[l].d_activ_dw(self.phis[l])
+            aLmin1 = self.acts[l-1]
+            dEdW = dadp * aLmin1
+            self.conns[l].conn += dEdW
 
 
 if __name__ == "__main__":
