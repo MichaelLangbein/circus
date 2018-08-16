@@ -1,69 +1,77 @@
 import numpy as np
+from infix import or_infix
 
+@or_infix
+def fan(vecA, vecB):
+    
 
-class Layer:
-    def __init__(self, count):
-        self.count = count
-
-    def predict(self, inpt):
-        return 1. / (1. + np.exp(-inpt))
-
-    def d_activ_dw(self, inpt):
-        return np.exp(-inpt) / (1. + np.exp(-inpt))**2 
-
-
-class Connection:
-    def __init__(self, r, c):
-        self.conn = np.random.rand(r,c)
-
-    def propagate(self, inpt):
-        return self.conn.dot(inpt)
+@or_infix
+def mxv (matrix, vec):
+    return matrix.dot(vec)
+    
 
 
 class NN:
-    def __init__(self, sizes):
-        self.conns = []
-        self.phis = []
-        self.layers = []
-        self.acts = []
-        for l in range(1, len(sizes)):
-            lastSize = sizes[l-1]
-            currSize = sizes[l]
-            self.conns.append(Connection(currSize, lastSize))
-            self.layers.append(Layer(currSize))
 
-    def evaluate(self, inpt):
-        for l in range(len(self.layers)):
-            conn = self.conns[l]
-            layer = self.layers[l]
-            phi = conn.propagate(inpt)
-            act = layer.predict(phi)
-            inpt = act
-        return act
-
-    def backprop(self, inpt, outpt):
-
-        # Forward pass
-        for l in range(len(self.layers)):
-            conn = self.conns[l]
-            layer = self.layers[l]
-            self.phis[l] = conn.propagate(inpt)
-            self.acts[l] = layer.predict(self.phis[l])
-            inpt = self.acts[l]
-
-        # Backward pass
-        for l in range(len(self.layers), 1):
-            dadp = self.layers[l].d_activ_dw(self.phis[l])
-            aLmin1 = self.acts[l-1]
-            dEdW = dadp * aLmin1
-            self.conns[l].conn += dEdW
+    def __init__(self, layerSizes):
+        self.L = len(layerSizes)
+        self.x = []
+        self.W = []
+        self.y = []
+        self.dEdx = []
+        self.dEdW = []
+        for l in range(1, self.L):
+            f = layerSizes[l-1]
+            t = layerSizes[l]
+            self.W[l] = np.zeros((f,t))
 
 
-if __name__ == "__main__":
-    nn = NN([3,5,4])
-    inpt = [1.1, 3.2, 0.8]
-    outpt = nn.evaluate(inpt)
-    print(outpt) 
-            
-            
-            
+
+    def actFct(self, x):
+        return 1. / (1. + np.exp(x))
+
+
+    def diffAct(self, x):
+        return np.exp(x) / (1. + np.exp(x))**2
+
+
+    def predict(self, inpt):
+        # 1.1.  First Layer
+        self.y[0] = inpt
+        # 1.2.  Higher layers
+        for l in range(1, self.L):
+            self.x[l] = self.W[l] |mxv| self.y[l-1]
+            self.y[l] = self.actFct(self.x[l])
+        
+        return self.y[self.L]
+
+
+    def backprop(self, target):
+        # 2.1.  Top Layer
+        self.dEdx[L] = (target - self.y[L]) * self.diffAct(self.x[L])
+        self.dEdW[L] = self.dEdx[L] |fan| self.y[L-1]
+
+        # 2.2.  Lower layers
+        for l in range(self.L-1, 1):
+            self.dEdx[l] = self.dEdx[l+1] * self.W[l+1] * self.diffAct(self.x[l])
+            self.dEdW[l] = self.dEdx[l] |fan| self.y[l-1]
+        
+        return self.dEdW
+
+        
+        def training(self, inputs, targets):
+
+            alpha = 1
+
+            for s in range(len(inputs)):
+
+                inpt = inputs[s]
+                target = targets[s]
+
+                output = self.predict(inpt)
+                dEdW = self.backprop(target)
+
+                for l in range(self.L):
+                    self.W[l] -= alpha * dEdW[l]
+                
+                alpha *= 0.95
