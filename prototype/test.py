@@ -22,7 +22,7 @@ class NN:
         for l in range(1, self.L):
             f = layerSizes[l-1]
             t = layerSizes[l]
-            self.W[l] =  np.random.rand(f,t)
+            self.W[l] =  np.random.rand(t, f)
 
 
 
@@ -37,18 +37,19 @@ class NN:
     def predict(self, inpt):
         # 1.1.  First Layer
         self.y[0] = inpt
+        
         # 1.2.  Higher layers
         for l in range(1, self.L):
             self.x[l] = inner( self.W[l], self.y[l-1] )
             self.y[l] = self.actFct(self.x[l])
         
-        return self.y[self.L]
+        return self.y[self.L - 1]
 
 
     def backprop(self, target):
         # 2.1.  Top Layer
-        self.dEdx[L] = (target - self.y[L]) * self.diffAct(self.x[L])
-        self.dEdW[L] = outer( self.dEdx[L], self.y[L-1])
+        self.dEdx[self.L-1] = (target - self.y[self.L-1]) * self.diffAct(self.x[self.L-1])
+        self.dEdW[self.L-1] = outer( self.dEdx[self.L-1], self.y[self.L-1])
 
         # 2.2.  Lower layers
         for l in range(self.L-1, 1):
@@ -74,17 +75,19 @@ class NN:
             for l in range(self.L):
                 self.W[l] -= alpha * dEdW[l]
             
-            alpha *= 0.95
+            alpha *= 0.99
+
+            print "Training result: should be {}, is {}".format(target, output)
 
 
 
 
 inputs = []
 targets = []
-for i in range(30):
+for i in range(1000):
     a = np.random.randint(2)
     b = np.random.randint(2)
-    o = (a+b)%2
+    o = [(a+b)%2]
     inputs.append([a, b])
     targets.append(o)
 
