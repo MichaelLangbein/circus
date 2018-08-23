@@ -26,8 +26,8 @@ class NN:
         for l in range(0, self.L+1): # range is exclusive last value
             f = layerSizes[l]
             t = layerSizes[l+1]
-            self.W[l] =  np.random.rand(t, f)
-            self.b[l] = np.random.rand(t)
+            self.W[l] =  np.random.rand(t, f) - 0.5
+            self.b[l] = np.random.rand(t) - 0.5
 
 
 
