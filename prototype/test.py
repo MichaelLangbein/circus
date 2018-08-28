@@ -54,38 +54,39 @@ class NN:
 
     def backprop(self, target):
         # 2.1.  Top Layer
-        self.dEdx[self.L] = (target - self.y[self.L]) * self.diffAct(self.x[self.L])
-        self.dEdW[self.L] = outer( self.dEdx[self.L], self.y[self.L-1] )
-        self.dEdb[self.L] = self.dEdx[self.L]
+        self.dEdx[self.L] += (target - self.y[self.L]) * self.diffAct(self.x[self.L])
+        self.dEdW[self.L] += outer( self.dEdx[self.L], self.y[self.L-1] )
+        self.dEdb[self.L] += self.dEdx[self.L]
 
         # 2.2.  Lower layers
         for l in range(self.L-1, -1, -1): # range is exclusive last value
-            self.dEdx[l] = inner( np.transpose(self.W[l+1]), self.dEdx[l+1] ) * self.diffAct(self.x[l])
-            self.dEdW[l] = outer( self.dEdx[l], self.y[l-1] )
-            self.dEdb[l] = self.dEdx[l]
-        
-        return (self.dEdW, self.dEdb)
+            self.dEdx[l] += inner( np.transpose(self.W[l+1]), self.dEdx[l+1] ) * self.diffAct(self.x[l])
+            self.dEdW[l] += outer( self.dEdx[l], self.y[l-1] )
+            self.dEdb[l] += self.dEdx[l]
 
         
-    def training(self, inputs, targets, decay):
+    def training(self, inputs, targets, repetitions, decay):
 
         alpha = 1
         outs = []
         offBy = []
         alphas = []
 
-        for s in range(len(inputs)):
-            print "now training on {}th sample with alpha = {}".format(s, alpha)
+        for r in range(repetitions):
+            print "now working on {}th epoch with alpha = {}".format(r, alpha)
+            
+            for s in range(len(inputs)):
+                print "now training on {}th sample".format(s)
 
-            inpt = inputs[s]
-            target = targets[s]
+                inpt = inputs[s]
+                target = targets[s]
 
-            output = self.predict(inpt)
-            (dEdW, dEdb) = self.backprop(target)
+                output = self.predict(inpt)
+                self.backprop(target)
 
             for l in range(self.L + 1): # range is eclusive last value
-                self.W[l] -= alpha * dEdW[l]
-                self.b[l] -= alpha * dEdb[l]
+                self.W[l] -= alpha * self.dEdW[l]
+                self.b[l] -= alpha * self.dEdb[l]
             
             alpha = decay(alpha)
 
@@ -105,13 +106,13 @@ class NN:
 
 inputs = []
 targets = []
-for i in range(10000):
+for i in range(100):
     a = np.random.randint(2)
     b = np.random.randint(2)
     o = [(a+b)%2]
     inputs.append([a, b])
     targets.append(o)
 
-nn = NN([2, 4, 1])
-nn.training(inputs, targets, lambda a  : a*0.999)
+nn = NN([2, 2, 1])
+nn.training(inputs, targets, 1000, lambda a: a*0.99)
 print nn.predict([1,0])
