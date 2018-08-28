@@ -26,7 +26,7 @@ class NN:
         for l in range(0, self.L+1): # range is exclusive last value
             f = layerSizes[l]
             t = layerSizes[l+1]
-            self.W[l] =  np.random.rand(t, f) - 0.5
+            self.W[l] = np.random.rand(t, f) - 0.5
             self.b[l] = np.random.rand(t) - 0.5
 
 
@@ -87,6 +87,8 @@ class NN:
             for l in range(self.L + 1): # range is eclusive last value
                 self.W[l] -= alpha * self.dEdW[l]
                 self.b[l] -= alpha * self.dEdb[l]
+                self.dEdW[l] = 0
+                self.dEdb[l] = 0
             
             alpha = decay(alpha)
 
