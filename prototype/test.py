@@ -32,11 +32,11 @@ class NN:
 
 
     def actFct(self, x):
-        return 1. / (1. + np.exp(x))
+        return x # 1. / (1. + np.exp(x))
 
 
     def diffAct(self, x):
-        return np.exp(-x) / (1. + np.exp(-x))**2
+        return np.ones(x.shape) #np.exp(-x) / (1. + np.exp(-x))**2
 
 
     def predict(self, inpt):
@@ -52,29 +52,37 @@ class NN:
         return self.y[self.L]
 
 
-    def backprop(self, target):
+    def backprop(self, inpt, target):
+
         # 2.1.  Top Layer
-        self.dEdx[self.L] += (target - self.y[self.L]) * self.diffAct(self.x[self.L])
-        self.dEdW[self.L] += outer( self.dEdx[self.L], self.y[self.L-1] )
-        self.dEdb[self.L] += self.dEdx[self.L]
+        self.dEdx[self.L] = (target - self.y[self.L]) * self.diffAct(self.x[self.L])
+        self.dEdW[self.L] = outer( self.dEdx[self.L], self.y[self.L-1] )
+        self.dEdb[self.L] = self.dEdx[self.L]
 
         # 2.2.  Lower layers
-        for l in range(self.L-1, -1, -1): # range is exclusive last value
-            self.dEdx[l] += inner( np.transpose(self.W[l+1]), self.dEdx[l+1] ) * self.diffAct(self.x[l])
-            self.dEdW[l] += outer( self.dEdx[l], self.y[l-1] )
-            self.dEdb[l] += self.dEdx[l]
+        for l in range(self.L-1, 0, -1): # range is exclusive last value
+            self.dEdx[l] = inner( np.transpose(self.W[l+1]), self.dEdx[l+1] ) * self.diffAct(self.x[l])
+            self.dEdW[l] = outer( self.dEdx[l], self.y[l-1] )
+            self.dEdb[l] = self.dEdx[l]
+
+        # 2.3 First layer
+        self.dEdx[0] = inner( np.transpose(self.W[1]), self.dEdx[1] ) * self.diffAct(self.x[0])
+        self.dEdW[0] = outer( self.dEdx[0], inpt )
+        self.dEdb[0] = self.dEdx[0]
+
+        return (self.dEdW, self.dEdb)
 
         
-    def training(self, inputs, targets, repetitions, decay):
+    def training(self, inputs, targets, repetitions, alpha, decay):
 
-        alpha = 1
-        outs = []
         offBy = []
         alphas = []
 
         for r in range(repetitions):
             print "now working on {}th epoch with alpha = {}".format(r, alpha)
-            
+            dEdW_total = [0] * (self.L + 1)
+            dEdb_total = [0] * (self.L + 1)
+
             for s in range(len(inputs)):
                 print "now training on {}th sample".format(s)
 
@@ -82,22 +90,23 @@ class NN:
                 target = targets[s]
 
                 output = self.predict(inpt)
-                self.backprop(target)
+                dEdW, dEdb = self.backprop(inpt, target)
+                for l in range(len(dEdW)):
+                    dEdW_total[l] += dEdW[l]
+                    dEdb_total[l] += dEdb[l]
+
+                print "Training result: should be {}, is {}".format(target, output)
+                offBy.append(abs(target - output))
+                alphas.append(alpha)
 
             for l in range(self.L + 1): # range is eclusive last value
-                self.W[l] -= alpha * self.dEdW[l]
-                self.b[l] -= alpha * self.dEdb[l]
-                self.dEdW[l] = 0
-                self.dEdb[l] = 0
+                self.W[l] -= alpha * dEdW_total[l]
+                self.b[l] -= alpha * dEdb_total[l]
+                #print dEdW_total[l]
             
             alpha = decay(alpha)
-
-            print "Training result: should be {}, is {}".format(target, output)
-            outs.append(output[0])
-            offBy.append(abs(target - output))
-            alphas.append(alpha)
         
-        plt.plot(outs)
+
         plt.plot(offBy)
         plt.plot(alphas)
         plt.show()
@@ -108,13 +117,17 @@ class NN:
 
 inputs = []
 targets = []
-for i in range(100):
-    a = np.random.randint(2)
-    b = np.random.randint(2)
-    o = [(a+b)%2]
-    inputs.append([a, b])
-    targets.append(o)
+for a in [0,1]:
+    for b in [0,1]:
+        o = [(a+b)%2]
+        inputs.append([a, b])
+        targets.append(o)
+
+
+
 
 nn = NN([2, 2, 1])
-nn.training(inputs, targets, 1000, lambda a: a*0.99)
+steps = 1000
+alpha0 = 0.1
+nn.training(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
 print nn.predict([1,0])
