@@ -29,19 +29,32 @@ class NN:
             self.W[l] = np.random.rand(t, f) - 0.5
             self.b[l] = np.random.rand(t) - 0.5
         if layerSizes == [2,2,1]:
-            self.W[0] = np.array([ [1.0, 1.0], [-1.0, -1.0] ])
-            self.b[0] = np.array([0.5, -1.5] )
+            self.W[0] = np.array([ [1.2, 0.8], [-1.3, -0.5] ])
+            self.b[0] = np.array([-0.5, 1.5] )
             self.W[1] = np.array([ [1.0, 1.0] ])
-            self.b[1] = np.array([1.5])
+            self.b[1] = np.array([-1.6])
+            #Combination: in -> (AtLeast, NotAnd) -> And -> out
+            #
+            # ActFct = Step Function:
+            # AtLeast: +1,+1;+0
+            # NotAnd:  -1,-1;+2
+            # And:     +1,+1;-1
+            #
+            # ActFct = Logistic:
+            # AtLeast: +1.0,+1.0;-0.5
+            # NotAnd:  -1.0,-1.0;+1.5
+            # And:     +1.0,+1.0;-1.5
 
 
 
     def actFct(self, x):
-        return 1. / (1. + np.exp(x))
+        return  1. / (1. + np.exp(-5.0*x))
+        #return (x>0)*1.0
 
 
     def diffAct(self, x):
-        return np.exp(-x) / (1. + np.exp(-x))**2
+        return 5.0*np.exp(-5*x) / (1. + np.exp(-5.0*x))**2
+        #return np.zeros(shape=x.shape)
 
 
     def predict(self, inpt):
@@ -84,12 +97,10 @@ class NN:
         alphas = []
 
         for r in range(repetitions):
-            print "now working on {}th epoch with alpha = {}".format(r, alpha)
             dEdW_total = [0] * (self.L + 1)
             dEdb_total = [0] * (self.L + 1)
 
             for s in range(len(inputs)):
-                print "now training on {}th sample".format(s)
 
                 inpt = inputs[s]
                 target = targets[s]
@@ -100,14 +111,12 @@ class NN:
                     dEdW_total[l] += dEdW[l]
                     dEdb_total[l] += dEdb[l]
 
-                print "Training result: should be {}, is {}".format(target, output)
                 offBy.append(abs(target - output))
                 alphas.append(alpha)
 
-            for l in range(self.L + 1): # range is eclusive last value
+            for l in range(self.L + 1): # range is exclusive last value
                 self.W[l] -= alpha * dEdW_total[l]
                 self.b[l] -= alpha * dEdb_total[l]
-                #print dEdW_total[l]
             
             alpha = decay(alpha)
         
@@ -117,6 +126,31 @@ class NN:
         plt.show()
 
 
+    def stochasticTraining(self, inputs, targets, repetitions, alpha, decay):
+
+        offBy = []
+        alphas = []
+
+        for r in range(repetitions):
+            for s in range(len(inputs)):
+
+                inpt = inputs[s]
+                target = targets[s]
+
+                output = self.predict(inpt)
+                dEdW, dEdb = self.backprop(inpt, target)
+                for l in range(len(dEdW)):
+                    self.W[l] -= alpha * dEdW[l]
+                    self.b[l] -= alpha * dEdb[l]
+                alpha = decay(alpha)
+                
+                offBy.append(abs(target - output))
+                alphas.append(alpha)
+        
+
+        plt.plot(offBy)
+        plt.plot(alphas)
+        plt.show()
 
 
 
@@ -132,9 +166,15 @@ for a in [0,1]:
 
 
 nn = NN([2, 2, 1])
-steps = 2
+print "first guess:"
+print nn.predict([0,0])
+print nn.predict([1,0])
+print nn.predict([0,1])
+print nn.predict([1,1])
+steps = 100
 alpha0 = 0.1
-#nn.training(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
+nn.stochasticTraining(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
+print "second guess:"
 print nn.predict([0,0])
 print nn.predict([1,0])
 print nn.predict([0,1])
