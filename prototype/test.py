@@ -28,15 +28,20 @@ class NN:
             t = layerSizes[l+1]
             self.W[l] = np.random.rand(t, f) - 0.5
             self.b[l] = np.random.rand(t) - 0.5
+        if layerSizes == [2,2,1]:
+            self.W[0] = np.array([ [1.0, 1.0], [-1.0, -1.0] ])
+            self.b[0] = np.array([0.5, -1.5] )
+            self.W[1] = np.array([ [1.0, 1.0] ])
+            self.b[1] = np.array([1.5])
 
 
 
     def actFct(self, x):
-        return x # 1. / (1. + np.exp(x))
+        return 1. / (1. + np.exp(x))
 
 
     def diffAct(self, x):
-        return np.ones(x.shape) #np.exp(-x) / (1. + np.exp(-x))**2
+        return np.exp(-x) / (1. + np.exp(-x))**2
 
 
     def predict(self, inpt):
@@ -55,7 +60,7 @@ class NN:
     def backprop(self, inpt, target):
 
         # 2.1.  Top Layer
-        self.dEdx[self.L] = (target - self.y[self.L]) * self.diffAct(self.x[self.L])
+        self.dEdx[self.L] = (self.y[self.L] - target) * self.diffAct(self.x[self.L])
         self.dEdW[self.L] = outer( self.dEdx[self.L], self.y[self.L-1] )
         self.dEdb[self.L] = self.dEdx[self.L]
 
@@ -127,7 +132,10 @@ for a in [0,1]:
 
 
 nn = NN([2, 2, 1])
-steps = 1000
+steps = 2
 alpha0 = 0.1
-nn.training(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
+#nn.training(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
+print nn.predict([0,0])
 print nn.predict([1,0])
+print nn.predict([0,1])
+print nn.predict([1,1])
