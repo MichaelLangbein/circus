@@ -29,10 +29,10 @@ class NN:
             self.W[l] = np.random.rand(t, f) - 0.5
             self.b[l] = np.random.rand(t) - 0.5
         if layerSizes == [2,2,1]:
-            self.W[0] = np.array([ [1.2, 0.8], [-1.3, -0.5] ])
+            self.W[0] = np.array([ [1.0, 1.0], [-1.0, -1.0] ])
             self.b[0] = np.array([-0.5, 1.5] )
-            self.W[1] = np.array([ [1.0, 1.0] ])
-            self.b[1] = np.array([-1.6])
+            self.W[1] = np.array([ [1.2, 1.0] ])
+            self.b[1] = np.array([-1.5])
             #Combination: in -> (AtLeast, NotAnd) -> And -> out
             #
             # ActFct = Step Function:
@@ -119,7 +119,6 @@ class NN:
                 self.b[l] -= alpha * dEdb_total[l]
             
             alpha = decay(alpha)
-        
 
         plt.plot(offBy)
         plt.plot(alphas)
@@ -154,28 +153,24 @@ class NN:
 
 
 
-inputs = []
-targets = []
-for a in [0,1]:
-    for b in [0,1]:
-        o = [(a+b)%2]
-        inputs.append([a, b])
-        targets.append(o)
 
 
+if __name__ == "__main__":
+
+    inpts = []
+    targs = []
+    for i in range(20):
+        inpt = 20  * [0]
+        inpt[i] = 1.0
+        a = i * 0.1
+        o = (np.sin(a) + 1 ) * 10
+        oupt = 20 * [0]
+        oupt[int(o)] = 1
+        inpts.append(inpt)
+        targs.append(oupt)
 
 
-nn = NN([2, 2, 1])
-print "first guess:"
-print nn.predict([0,0])
-print nn.predict([1,0])
-print nn.predict([0,1])
-print nn.predict([1,1])
-steps = 100
-alpha0 = 0.1
-nn.stochasticTraining(inputs, targets, steps,  alpha0, lambda a: a - alpha0/steps)
-print "second guess:"
-print nn.predict([0,0])
-print nn.predict([1,0])
-print nn.predict([0,1])
-print nn.predict([1,1])
+    nn = NN([20, 30, 50, 30, 20])
+    steps = 10000
+    alpha0 = 0.1
+    nn.training(inpts, targs, steps,  alpha0, lambda a: a - alpha0/steps)
