@@ -156,14 +156,23 @@ if __name__ == "__main__":
     inpts = []
     targs = []
     for i in range(100):
-        rd = np.random.rand(10)
-        inpt = (rd > 0.5) * 1.0
-        oupt = [(np.sum(inpt) > 5.0)*1.0]
-        inpts.append(inpt)
-        targs.append(oupt)
+        # --- first example: in = out ----------
+        #i = (np.random.rand(1) > 0.5) * 1.0
+        #o = i
+        # --- second example: in > 5 -----------
+        #rd = np.random.rand(10)
+        #i = (rd > 0.5) * 1.0
+        #o = [(np.sum(inpt) > 5.0)*1.0]
+        # --- third example: sum(in) > 1 ------
+        #i = (np.random.rand(2) > 0.5) * 1.0
+        #o = [(np.sum(i) > 1) * 1.0]
+        # --- fourth example: return one if inpt[2] == 1 -------
+        i = (np.random.rand(10) > 0.5) * 1.0
+        o = [(i[2] == 1.0) * 1.0]
+        inpts.append(i)
+        targs.append(o)
 
-
-    nn = NN([10, 5, 1])
+    nn = NN([10, 10, 1])
     steps = 1000
     alpha0 = .3
     nn.training(inpts, targs, steps,  alpha0)
