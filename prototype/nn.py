@@ -117,7 +117,7 @@ class NN:
                 self.b[l] -= alpha * dEdb_total[l]
             
             alpha -= alpha0 / repetitions
-            print alpha
+            print "completed {} %".format(100.0 * r / repetitions) 
 
         plt.plot(offBy)
         plt.show()
@@ -142,7 +142,7 @@ class NN:
                 offBy.append(abs(target - output))
             
             alpha -= alpha0 / repetitions
-            print alpha
+            print "completed {} %".format(100.0 * r / repetitions)
                 
         plt.plot(offBy)
         plt.show()

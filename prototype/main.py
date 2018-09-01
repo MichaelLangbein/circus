@@ -5,11 +5,12 @@ class SampleLoader:
     def __init__(self, pathToFile):
         self.file = open(pathToFile, "r")
     
-    def getNextTrainingSample(self):
+    def getNextSample(self):
         line = self.file.readline()
         if not line:
             return False
-        inpt = line.split(" ")
+        inpt = line.split("   ")
+        inpt = [x for x in inpt if x is not ""]
         inpt = [float(x) for x in inpt]
         outpt = inpt.pop()
         return (inpt, outpt)
@@ -18,12 +19,13 @@ class SampleLoader:
 sl = SampleLoader("/home/michael/Desktop/c_workspace/nn/data/mnist/mnist_train_short.amat")
 inpts = []
 outpts = []
-inpt, outpt = sl.getNextTrainingSample()
+for i in range(100):
+    inpt, outpt = sl.getNextSample()
+    inpts.append(inpt)
+    outpts.append(outpt)
 
 
 nn = NN([784, 1000, 1000, 500, 100, 10])
 steps = 1000
 alpha0 = 0.1
-def decay(a):
-    return a - alpha0 / steps
-nn.training(inpts, outpts, steps, alpha0, decay)
+nn.training(inpts, outpts, steps, alpha0)
