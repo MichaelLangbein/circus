@@ -26,13 +26,12 @@ class NN:
         for l in range(0, self.L+1): # range is exclusive last value
             f = layerSizes[l]
             t = layerSizes[l+1]
-            self.W[l] = np.random.rand(t, f) - 0.5
-            self.b[l] = np.random.rand(t) - 0.5
-        if layerSizes == [2,2,1]:
-            self.W[0] = np.array([ [1.0, 1.0], [-1.0, -1.0] ])
-            self.b[0] = np.array([-0.5, 1.5] )
-            self.W[1] = np.array([ [1.2, 1.0] ])
-            self.b[1] = np.array([-1.5])
+            self.W[l] = np.random.rand(t, f)*2.0 - 1.0
+            self.b[l] = np.random.rand(t)*2.0 - 1.0
+            #self.W[0] = np.array([ [1.0, 1.0], [-1.0, -1.0] ])
+            #self.b[0] = np.array([-0.5, 1.5] )
+            #self.W[1] = np.array([ [1.2, 1.0] ])
+            #self.b[1] = np.array([-1.5])
             #Combination: in -> (AtLeast, NotAnd) -> And -> out
             #
             # ActFct = Step Function:
@@ -48,12 +47,12 @@ class NN:
 
 
     def actFct(self, x):
-        return  1. / (1. + np.exp(-5.0*x))
+        return  1. / (1. + np.exp(-x))
         #return (x>0)*1.0
 
 
     def diffAct(self, x):
-        return 5.0*np.exp(-5*x) / (1. + np.exp(-5.0*x))**2
+        return np.exp(-x) / (1. + np.exp(-x))**2
         #return np.zeros(shape=x.shape)
 
 
@@ -91,11 +90,11 @@ class NN:
         return (self.dEdW, self.dEdb)
 
         
-    def training(self, inputs, targets, repetitions, alpha, decay):
+    def training(self, inputs, targets, repetitions, alpha0):
 
         offBy = []
-        alphas = []
 
+        alpha = alpha0
         for r in range(repetitions):
             dEdW_total = [0] * (self.L + 1)
             dEdb_total = [0] * (self.L + 1)
@@ -112,24 +111,23 @@ class NN:
                     dEdb_total[l] += dEdb[l]
 
                 offBy.append(abs(target - output))
-                alphas.append(alpha)
 
             for l in range(self.L + 1): # range is exclusive last value
                 self.W[l] -= alpha * dEdW_total[l]
                 self.b[l] -= alpha * dEdb_total[l]
             
-            alpha = decay(alpha)
+            alpha -= alpha0 / repetitions
+            print alpha
 
         plt.plot(offBy)
-        plt.plot(alphas)
         plt.show()
 
 
-    def stochasticTraining(self, inputs, targets, repetitions, alpha, decay):
+    def stochasticTraining(self, inputs, targets, repetitions, alpha0):
 
         offBy = []
-        alphas = []
 
+        alpha = alpha0
         for r in range(repetitions):
             for s in range(len(inputs)):
 
@@ -141,14 +139,12 @@ class NN:
                 for l in range(len(dEdW)):
                     self.W[l] -= alpha * dEdW[l]
                     self.b[l] -= alpha * dEdb[l]
-                alpha = decay(alpha)
-                
                 offBy.append(abs(target - output))
-                alphas.append(alpha)
-        
-
+            
+            alpha -= alpha0 / repetitions
+            print alpha
+                
         plt.plot(offBy)
-        plt.plot(alphas)
         plt.show()
 
 
@@ -159,18 +155,19 @@ if __name__ == "__main__":
 
     inpts = []
     targs = []
-    for i in range(20):
-        inpt = 20  * [0]
-        inpt[i] = 1.0
-        a = i * 0.1
-        o = (np.sin(a) + 1 ) * 10
-        oupt = 20 * [0]
-        oupt[int(o)] = 1
+    for i in range(100):
+        rd = np.random.rand(10)
+        inpt = (rd > 0.5) * 1.0
+        oupt = [(np.sum(inpt) > 5.0)*1.0]
         inpts.append(inpt)
         targs.append(oupt)
 
 
-    nn = NN([20, 30, 50, 30, 20])
-    steps = 10000
-    alpha0 = 0.1
-    nn.training(inpts, targs, steps,  alpha0, lambda a: a - alpha0/steps)
+    nn = NN([10, 5, 1])
+    steps = 1000
+    alpha0 = .3
+    nn.training(inpts, targs, steps,  alpha0)
+    
+    print inpts[0]
+    print targs[0]
+    print nn.predict(inpts[0])
