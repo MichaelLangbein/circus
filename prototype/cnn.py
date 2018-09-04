@@ -6,7 +6,7 @@ class Layer:
     def prop(self, x):
         raise Exception("prop wurde nicht implementiert!")
 
-    def backprop(self, dEdX):
+    def backprop(self, delta_l, x_l, y_lmin1, alpha):
         raise Exception("backprop wurde nicht implementiert!")
 
     def dream(self, dEdW):
@@ -25,15 +25,19 @@ class FullyConnectedLayer(Layer):
         a = self.activation(z)
         return a
 
-    def backprop(self, dEdX):
-        dEdW = None
-        dEdb = None
-        dEdx = None
-        return (dEdW, dEdb, dEdX)
+    def backprop(self, delta_l, x_l, y_lmin1, alpha):
+        dEdX_l = delta_l * derivActivation(x_l)
+        dEdW_l = dEdX_l.T * y_lmin1.T
+        dEdb_l = dEdX_l
+        delta_lmin1 = dEdX_l self.W
+
+        self.W -= alpha*dEdW_l
+        self.b -= alpha*dEdb_l
+        
+        return delta_lmin1
 
     def activation(self, z):
         return 1.0 / (1.0 + np.exp(-z))
-
 
     def derivActivation(self, z):
         return np.exp(-z) / (1.0 + np.exp(-z))**2
@@ -49,7 +53,7 @@ class ConvolutionLayer(Layer):
         return crossCorr(self.K, M)
 
 
-    def backprop(self, dEdX):
+    def backprop(self, delta_l, x_l, y_lmin1, alpha):
         pass
 
 
@@ -63,7 +67,7 @@ class MaxPoolingLayer(Layer):
     def prop(self, M):
         pass
 
-    def backprop(self, dEdX):
+    def backprop(self, delta_l, x_l, y_lmin1, alpha):
         pass
 
 
@@ -73,8 +77,8 @@ class VectorizeLayer(Layer):
     def prop(self, M):
         return np.reshape(M)
 
-    def backprop(self, dEdX):
-        return dEdX
+    def backprop(self, delta_l, x_l, y_lmin1, alpha):
+        return delta_l
 
 
 
@@ -90,9 +94,31 @@ class Network:
             inpt = outpt
         return outpt
 
-    def train(self, inpts, outpts):
-        pass
+    def singleTrainingStep(self, inpt, target, alpha):
+        L = len(self.layers)
+        delta = []
+        x = []
+        y = []
 
+        # Forward pass
+        x[0] = inpt
+        for l in range(L):
+            y[l] = layers[l].prop(x[l])
+            x[l+1] = y[l]
+
+        # Backward pass
+        delta[L] = (outpt - target).T
+        for l in range(L, -1, -1):
+            delta[l-1] = layers[l].backprop( delta[l], x[l], y[l-1], alpha )
+
+
+
+    def train(self, inpts, outpts):
+        T = len(inpts)
+        alpha = 1
+        for t in range(T):
+            self.singleTrainingStep(inpts[t], outpts[t], alpha)
+            alpha -= 1. / T
 
 
 
